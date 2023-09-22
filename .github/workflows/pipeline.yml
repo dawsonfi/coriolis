@@ -75,7 +75,7 @@ jobs:
     - uses: actions/download-artifact@v3
       with:
         name: bootstrap
-        path: target/lambda/coriolis-api/
+        path: target/lambda/coriolis/
     - run: npm install cdk --global
     - run: npm --prefix dev/cdk install
     - run: npm --prefix dev/cdk run build
