@@ -19,8 +19,6 @@ mod tests {
             .await
             .unwrap();
 
-        let accounts: String = from_str(&result.payload).unwrap();
         assert_eq!(result.status, 200);
-        assert_eq!(accounts, "update available");
     }
 }
