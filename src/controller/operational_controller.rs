@@ -1,6 +1,5 @@
 use crate::error::PermanentError;
 use crate::service::UpdateService;
-use actix_web::http::header::ContentType;
 use actix_web::web::{Data, Query};
 use lambda_web::actix_web::{get, HttpResponse};
 use serde::Deserialize;
@@ -26,12 +25,19 @@ pub async fn firmware_update(
     update_service: Data<UpdateService>,
     params: Query<FirmwareUpdateParams>,
 ) -> Result<HttpResponse, PermanentError> {
-    info!("Checking for available firmware updates");
+    info!(
+        "Checking for available firmware updates for {}",
+        params.current_version
+    );
 
-    Ok(HttpResponse::Ok().content_type(ContentType::json()).body(
-        update_service
-            .get_firmware_update(params.current_version.clone())
-            .await?
-            .unwrap_or("".to_string()),
-    ))
+    // x-ESP32-version header
+
+    let update_result = update_service
+        .get_firmware_update(params.current_version.clone())
+        .await?;
+
+    match update_result {
+        Some(update) => Ok(HttpResponse::Ok().streaming(update)),
+        None => Ok(HttpResponse::NotModified().body("")),
+    }
 }
